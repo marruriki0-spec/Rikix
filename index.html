@@ -40,7 +40,7 @@
     }
 
     .container {
-      max-width: 680px;
+      max-width: 720px;
       margin: 0 auto;
       position: relative;
       z-index: 2;
@@ -204,20 +204,22 @@
       flex-wrap: wrap;
     }
 
-    input {
+    textarea {
       flex: 2;
       background: #0b0f1c;
       border: 1.5px solid #2a3550;
-      border-radius: 2rem;
+      border-radius: 1.5rem;
       padding: 1rem 1.4rem;
       font-size: 1rem;
       font-family: 'SF Mono', monospace;
       color: #f0f3ff;
       outline: none;
       transition: all 0.25s;
+      resize: vertical;
+      min-height: 180px;
     }
 
-    input:focus {
+    textarea:focus {
       border-color: #c084fc;
       box-shadow: 0 0 0 4px rgba(192, 132, 252, 0.2);
       background: #0f1425;
@@ -323,6 +325,8 @@
       border: 0.5px solid #2d3a60;
       margin: 8px 0 16px 0;
       white-space: pre-wrap;
+      max-height: 300px;
+      overflow-y: auto;
     }
 
     .key-glow {
@@ -365,6 +369,7 @@
       display: flex;
       gap: 10px;
       margin-top: 12px;
+      flex-wrap: wrap;
       justify-content: flex-end;
     }
 
@@ -434,7 +439,7 @@
     <div class="header">
       <div class="chip">⚡ GENERATOR TOOL</div>
       <h1>PROXY LINK<br>CREATOR</h1>
-      <div class="sub">ใส่คีย์เดียว · ได้ลิงก์สำเร็จรูป</div>
+      <div class="sub">ใส่คีย์เดียว หรือหลายคีย์ (ทีละบรรทัด)</div>
     </div>
 
     <div class="settings-section">
@@ -449,9 +454,11 @@
     </div>
 
     <div class="input-group">
-      <label>🔑 คีย์สำหรับลูกค้า (คั่นด้วยเว้นวรรค)</label>
+      <label>🔑 คีย์สำหรับลูกค้า (ใส่ทีละบรรทัด หรือคั่นด้วยเว้นวรรค)</label>
       <div class="input-wrapper">
-        <input type="text" id="keyInput" placeholder="CRX-8D92FA-E6F193 CRX-484BA2-4CDAE1 CRX-543522-BE9799" autocomplete="off">
+        <textarea id="keyInput" placeholder="CRX-8D92FA-E6F193
+CRX-484BA2-4CDAE1
+CRX-543522-BE9799"></textarea>
         <button class="btn-glow" id="genBtn">✨ สร้างลิงก์</button>
       </div>
       
@@ -467,19 +474,18 @@
 
     <div id="resultArea" style="display: none;">
       <div class="result-premium">
-        <div class="label-light">🔗 ลิงก์ที่ส่งให้ลูกค้า</div>
+        <div class="label-light">🔗 ลิงก์ที่ส่งให้ลูกค้า (แยกบรรทัด)</div>
         <div class="link-glass" id="generatedLink"></div>
 
-        <div class="label-light">🔑 คีย์ที่อยู่ในลิงก์</div>
-        <div class="key-glow" id="displayKey"></div>
-
-        <button class="btn-outline-copy" id="copyLinkBtn">
-          📋 คัดลอก (ลิงก์เดียว/ทั้งหมด)
-        </button>
-
-        <div class="batch-buttons" id="batchCopyContainer" style="display: none;">
+        <div class="batch-buttons">
+          <button class="btn-outline-copy" id="copyLinkBtn">
+            📋 คัดลอกลิงก์แรก
+          </button>
           <button class="btn-copy-all" id="copyAllLinksBtn">
             📋 คัดลอกทั้งหมด (แยกบรรทัด)
+          </button>
+          <button class="btn-copy-all" id="copyAllLinksWithSpaceBtn" style="background: linear-gradient(105deg, #f59e0b, #d97706);">
+            📋 คัดลอกทั้งหมด (มีบรรทัดว่างคั่น)
           </button>
         </div>
       </div>
@@ -497,7 +503,6 @@
   
   let currentBaseUrl = localStorage.getItem('proxy_base_url') || DEFAULT_BASE_URL;
   let currentKeysList = [];
-  let currentSingleKey = "";
 
   const baseUrlInput = document.getElementById('baseUrlInput');
   const saveBaseUrlBtn = document.getElementById('saveBaseUrlBtn');
@@ -508,10 +513,9 @@
   const clearBtn = document.getElementById('clearBtn');
   const resultArea = document.getElementById('resultArea');
   const generatedLinkSpan = document.getElementById('generatedLink');
-  const displayKeySpan = document.getElementById('displayKey');
   const copyLinkBtn = document.getElementById('copyLinkBtn');
-  const batchCopyContainer = document.getElementById('batchCopyContainer');
   const copyAllLinksBtn = document.getElementById('copyAllLinksBtn');
+  const copyAllLinksWithSpaceBtn = document.getElementById('copyAllLinksWithSpaceBtn');
 
   baseUrlInput.value = currentBaseUrl;
 
@@ -546,12 +550,24 @@
     }
   }
 
-  function parseKeysBySpace(raw) {
-    let parts = raw.trim().split(/\s+/);
+  // แยกคีย์จาก textarea (รองรับทั้งการขึ้นบรรทัดใหม่ และเว้นวรรค)
+  function parseKeys(raw) {
     let keys = [];
-    for (let p of parts) {
-      p = p.trim();
-      if (p !== "") keys.push(p);
+    // แยกด้วยการขึ้นบรรทัดใหม่ก่อน
+    let lines = raw.split(/\r?\n/);
+    for (let line of lines) {
+      line = line.trim();
+      if (line === "") continue;
+      // ถ้ายังมีเว้นวรรคอยู่ในบรรทัด ให้แยกอีกที
+      if (line.includes(' ')) {
+        let parts = line.split(/\s+/);
+        for (let p of parts) {
+          p = p.trim();
+          if (p !== "") keys.push(p);
+        }
+      } else {
+        keys.push(line);
+      }
     }
     return keys;
   }
@@ -562,24 +578,13 @@
       return;
     }
 
-    if (keys.length === 1) {
-      const link = buildLink(keys[0]);
-      generatedLinkSpan.innerText = link;
-      displayKeySpan.innerText = keys[0];
-      copyLinkBtn.innerHTML = '📋 คัดลอกลิงก์';
-      batchCopyContainer.style.display = 'none';
-    } else {
-      let linksText = "";
-      let keysText = "";
-      for (let k of keys) {
-        linksText += buildLink(k) + "\n";
-        keysText += k + "\n";
-      }
-      generatedLinkSpan.innerText = linksText;
-      displayKeySpan.innerText = keysText;
-      copyLinkBtn.innerHTML = '📋 คัดลอกลิงก์แรก';
-      batchCopyContainer.style.display = 'flex';
+    let linksText = "";
+    for (let i = 0; i < keys.length; i++) {
+      linksText += buildLink(keys[i]);
+      if (i < keys.length - 1) linksText += "\n";
     }
+    generatedLinkSpan.innerText = linksText;
+    copyLinkBtn.innerHTML = keys.length === 1 ? '📋 คัดลอกลิงก์' : '📋 คัดลอกลิงก์แรก';
     resultArea.style.display = 'block';
   }
 
@@ -618,13 +623,12 @@
       showToast("⚠️ กรุณาใส่คีย์ก่อน", true);
       return;
     }
-    const keys = parseKeysBySpace(rawKey);
+    const keys = parseKeys(rawKey);
     if (keys.length === 0) {
       showToast("⚠️ ไม่พบคีย์ที่ถูกต้อง", true);
       return;
     }
     currentKeysList = keys;
-    currentSingleKey = keys[0];
     updateUIForMultipleKeys(keys);
     showToast(`✨ สร้างลิงก์สำหรับ ${keys.length} คีย์`);
   });
@@ -634,7 +638,7 @@
       const text = await navigator.clipboard.readText();
       if (text && text.trim() !== "") {
         keyInput.value = text.trim();
-        showToast(`📋 วางคีย์: ${text.trim().substring(0, 30)}${text.length > 30 ? '…' : ''}`);
+        showToast(`📋 วางคีย์เรียบร้อย`);
       } else {
         showToast("❌ ไม่มีข้อความในคลิปบอร์ด", true);
       }
@@ -646,7 +650,6 @@
   function clearAll() {
     keyInput.value = '';
     currentKeysList = [];
-    currentSingleKey = "";
     resultArea.style.display = 'none';
     showToast('🗑️ ล้างข้อมูลเรียบร้อย');
   }
@@ -659,17 +662,10 @@
       return;
     }
     
-    if (currentKeysList.length === 1) {
-      const link = buildLink(currentKeysList[0]);
-      navigator.clipboard.writeText(link).then(() => {
-        showToast("📋 คัดลอกลิงก์เรียบร้อย");
-      }).catch(() => showToast("❌ คัดลอกไม่สำเร็จ", true));
-    } else {
-      const link = buildLink(currentKeysList[0]);
-      navigator.clipboard.writeText(link).then(() => {
-        showToast("📋 คัดลอกลิงก์แรกเรียบร้อย");
-      }).catch(() => showToast("❌ คัดลอกไม่สำเร็จ", true));
-    }
+    const link = buildLink(currentKeysList[0]);
+    navigator.clipboard.writeText(link).then(() => {
+      showToast("📋 คัดลอกลิงก์แรกเรียบร้อย");
+    }).catch(() => showToast("❌ คัดลอกไม่สำเร็จ", true));
   });
 
   if (copyAllLinksBtn) {
@@ -679,11 +675,29 @@
         return;
       }
       let allLinks = "";
-      for (let k of currentKeysList) {
-        allLinks += buildLink(k) + "\n";
+      for (let i = 0; i < currentKeysList.length; i++) {
+        allLinks += buildLink(currentKeysList[i]);
+        if (i < currentKeysList.length - 1) allLinks += "\n";
       }
       navigator.clipboard.writeText(allLinks).then(() => {
-        showToast("📋 คัดลอกลิงก์ทั้งหมด (แยกบรรทัด) เรียบร้อย");
+        showToast(`📋 คัดลอก ${currentKeysList.length} ลิงก์ (แยกบรรทัด) เรียบร้อย`);
+      }).catch(() => showToast("❌ คัดลอกไม่สำเร็จ", true));
+    });
+  }
+
+  if (copyAllLinksWithSpaceBtn) {
+    copyAllLinksWithSpaceBtn.addEventListener('click', () => {
+      if (currentKeysList.length === 0) {
+        showToast("❌ ไม่มีลิงก์ให้คัดลอก", true);
+        return;
+      }
+      let allLinks = "";
+      for (let i = 0; i < currentKeysList.length; i++) {
+        allLinks += buildLink(currentKeysList[i]);
+        if (i < currentKeysList.length - 1) allLinks += "\n\n";
+      }
+      navigator.clipboard.writeText(allLinks).then(() => {
+        showToast(`📋 คัดลอก ${currentKeysList.length} ลิงก์ (มีบรรทัดว่างคั่น) เรียบร้อย`);
       }).catch(() => showToast("❌ คัดลอกไม่สำเร็จ", true));
     });
   }
@@ -691,12 +705,12 @@
   saveBaseUrlBtn.addEventListener('click', saveBaseUrl);
   resetDefaultUrlBtn.addEventListener('click', resetDefaultUrl);
 
-  keyInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') genBtn.click();
-  });
-
-  baseUrlInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') saveBaseUrl();
+  // Ctrl+Enter ใน textarea ก็สร้างลิงก์ได้
+  keyInput.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      genBtn.click();
+    }
   });
 </script>
 </body>
