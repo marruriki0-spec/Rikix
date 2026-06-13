@@ -580,6 +580,10 @@
       margin-bottom: 1.2rem;
       position: relative;
       animation: keyGlow 2s ease-in-out infinite alternate;
+      display: none;
+    }
+    .key-reveal-box.show {
+      display: block;
     }
     @keyframes keyGlow {
       0% { box-shadow: 0 0 15px rgba(99,102,241,0.3); }
@@ -686,22 +690,6 @@
       flex-direction: column;
       align-items: center;
       gap: 0.4rem;
-    }
-    .download-hint .alt-link {
-      color: var(--primary);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.79rem;
-      padding: 0.28rem 1rem;
-      background: rgba(99,102,241,0.06);
-      border-radius: var(--radius-2xl);
-      transition: background 0.2s, color 0.2s, transform 0.2s var(--ease-spring);
-      word-break: break-all;
-    }
-    .download-hint .alt-link:hover {
-      background: rgba(99,102,241,0.12);
-      color: var(--primary-dark);
-      transform: scale(1.03);
     }
 
     .section-header {
@@ -954,7 +942,7 @@
 
       <div class="file-meta-row">
         <div class="meta-item">
-          <i class="fas fa-file-archive"></i> panel.apk
+          <i class="fas fa-file-archive"></i> dripclient-proxy-android-v1.0.apk
         </div>
         <div class="meta-item version">
           <i class="fas fa-code-branch"></i> v1.0.0
@@ -963,7 +951,7 @@
           <i class="fas fa-weight-hanging"></i> 50.8 MB
         </div>
         <div class="meta-item">
-          <i class="fas fa-calendar-check"></i> 2 มิ.ย. 2569
+          <i class="fas fa-calendar-check"></i> 13 มิ.ย. 2569
         </div>
       </div>
 
@@ -977,7 +965,7 @@
       </div>
     </section>
 
-    <!-- ★ แก้ไข VIDEO_ID ด้านล่าง ★ -->
+    <!-- ★ YouTube Video ★ -->
     <div class="card">
       <div class="section-header">
         <i class="fab fa-youtube"></i>
@@ -995,8 +983,7 @@
 
     <!-- ── DOWNLOAD ── -->
     <div class="download-section">
-      <!-- ★ ลิงก์ดาวน์โหลด aimreg.zip ★ -->
-      <a href="https://www.mediafire.com/file/a4e6lm60sxzbwmz/aimreg.zip/file"
+      <a href="https://www.mediafire.com/file/8f3f0o2ta6n8jtl/dripclient-proxy-android-v1.0.apk/file"
          id="downloadButton"
          class="download-btn"
          download>
@@ -1008,11 +995,7 @@
         </div>
       </a>
       <div class="download-hint">
-        <p><i class="fas fa-shield-check" style="color:#10b981;"></i> ไฟล์ aimreg.zip · ตรวจสอบแล้ว · ปลอดภัย</p>
-        <a href="https://www.mediafire.com/file/a4e6lm60sxzbwmz/aimreg.zip/file"
-           target="_blank" class="alt-link">
-          <i class="fas fa-external-link-alt"></i> หรือดาวน์โหลดจาก MediaFire โดยตรง
-        </a>
+        <p><i class="fas fa-shield-check" style="color:#10b981;"></i> ไฟล์ dripclient-proxy-android-v1.0.apk · ตรวจสอบแล้ว · ปลอดภัย</p>
       </div>
     </div>
 
@@ -1024,16 +1007,15 @@
       <div class="dl-modal">
         <div class="dl-modal-icon"><i class="fas fa-check"></i></div>
         <h3>ดาวน์โหลดสำเร็จ!</h3>
-        <p>ไฟล์ <strong>aimreg.zip</strong> กำลังถูกส่งไปยังอุปกรณ์ของคุณ</p>
+        <p>ไฟล์ <strong>dripclient-proxy-android-v1.0.apk</strong> กำลังถูกส่งไปยังอุปกรณ์ของคุณ</p>
 
         <!-- KEY BOX -->
-        <!-- ★★★ เปลี่ยนคีย์ตรงนี้: แก้ "PANEL-2026-FREE-KEY-XXXXX" เป็นคีย์จริง ★★★ -->
         <div class="key-reveal-box" id="keyRevealBox">
           <div class="key-label">
             <i class="fas fa-key"></i> รหัสเปิดใช้งานของคุณ
           </div>
           <div class="key-value-wrap">
-            <code class="key-value" id="licenseKey">PANEL-2026-FREE-KEY-8X7K2</code>
+            <code class="key-value" id="licenseKey">7652027233</code>
             <button class="key-copy-btn" id="keyCopyBtn" onclick="copyKey()">
               <i class="fas fa-copy"></i> คัดลอก
             </button>
@@ -1059,7 +1041,7 @@
         <div class="detail-card">
           <i class="fas fa-file-archive"></i>
           <h3>ประเภทไฟล์</h3>
-          <p>ไฟล์บีบอัด (ZIP)</p>
+          <p>APK (Android Package)</p>
         </div>
         <div class="detail-card">
           <i class="fas fa-microchip"></i>
@@ -1103,8 +1085,8 @@
         <div class="step">
           <div class="step-number">3</div>
           <div class="step-content">
-            <strong>แตกไฟล์และติดตั้ง</strong>
-            <span>แตกไฟล์ ZIP แล้วแตะที่ไฟล์เพื่อติดตั้ง จากนั้นกด "ติดตั้ง"</span>
+            <strong>เปิดไฟล์และติดตั้ง</strong>
+            <span>แตะที่ไฟล์จากแถบการแจ้งเตือน หรือใช้แอปจัดการไฟล์ จากนั้นกด "ติดตั้ง"</span>
           </div>
         </div>
         <div class="step">
@@ -1140,7 +1122,7 @@
           <span class="faq-chevron"><i class="fas fa-chevron-down"></i></span>
         </div>
         <div class="faq-answer">
-          ไฟล์ผ่านการตรวจสอบลายเซ็นและปราศจากมัลแวร์ ดาวน์โหลดจากแหล่งที่เชื่อถือได้เท่านั้น
+          ไฟล์ APK ผ่านการตรวจสอบลายเซ็นและปราศจากมัลแวร์ ดาวน์โหลดจากแหล่งที่เชื่อถือได้เท่านั้น
         </div>
       </div>
 
@@ -1160,7 +1142,7 @@
           <span class="faq-chevron"><i class="fas fa-chevron-down"></i></span>
         </div>
         <div class="faq-answer">
-          หลังจากติดตั้งเสร็จ เปิดแอปแล้วใส่รหัสที่แสดงตอนดาวน์โหลด (PANEL-2026-...) เพื่อยืนยันสิทธิ์
+          หลังจากติดตั้งเสร็จ เปิดแอปแล้วใส่รหัสที่แสดงตอนดาวน์โหลดเพื่อยืนยันสิทธิ์
         </div>
       </div>
     </div>
@@ -1179,6 +1161,17 @@
   </div>
 
   <script>
+    /* ── CHECK URL FOR KEY ── */
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlKey = urlParams.get('key');
+    const keyRevealBox = document.getElementById('keyRevealBox');
+    const licenseKey = document.getElementById('licenseKey');
+
+    if (urlKey) {
+      licenseKey.textContent = urlKey;
+      keyRevealBox.classList.add('show');
+    }
+
     /* ── Scroll reveal ── */
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -1242,7 +1235,6 @@
           btnEl.innerHTML = '<i class="fas fa-copy"></i> คัดลอก';
         }, 2500);
       }).catch(() => {
-        // fallback
         const ta = document.createElement('textarea');
         ta.value = text;
         ta.style.position = 'fixed';
@@ -1376,6 +1368,9 @@
 
     function showOverlay() {
       dlOverlay.classList.add('show');
+      if (urlKey) {
+        keyRevealBox.classList.add('show');
+      }
       setTimeout(() => {
         dlModalClose.classList.add('visible');
       }, 1500);
