@@ -275,7 +275,7 @@
     (function() {
       'use strict';
 
-      // 🔥 TEMPLATE ตายตัว (จะแทนที่ [KEY] ด้วยค่าที่กรอก)
+      // 🔥 TEMPLATE ตายตัว (แก้ไขลิงก์วิธีใช้ใหม่แล้ว)
       const TEMPLATE = `🔥 ข้อมูล PROXY ของคุณ 🔥
 
 ━━━━━━━━━━━━━━━━━━
@@ -295,7 +295,7 @@
 🎬 https://youtu.be/6ol-ht66jXI?si=LyBYuzVEM4r1ZhRT
 
 ⚠️ วิธีใช้งานให้ปลอดภัย ลดโอกาสโดนแบน
-🎬 https://youtube.com/shorts/gPpz5-bfqsk?si=5E3-1-W32zKP809a
+🎬 https://youtube.com/shorts/aWNOuC6zlsE?si=-duR9x-X0ZgnMJzQ
 
 ━━━━━━━━━━━━━━━━━━
 
@@ -343,7 +343,6 @@
         } catch (e) {}
       }
 
-      // ฟังก์ชันสร้างข้อความ (ใส่ KEY ลงใน template)
       function generateMessage() {
         const rawKey = keyInput.value.trim();
         if (rawKey === '') {
@@ -358,14 +357,12 @@
         showToast('✅ สร้างข้อความสำเร็จ', true);
       }
 
-      // เพิ่มฟังก์ชันเรียลไทม์: ถ้าพิมพ์แล้วให้อัปเดต preview ทันที (ตามต้องการ)
       function livePreview() {
         const rawKey = keyInput.value.trim();
         if (rawKey !== '') {
           const msg = replaceKeyInTemplate(rawKey);
           previewBox.textContent = msg;
           currentGeneratedMessage = msg;
-          // ไม่บันทึก localStorage ทุกครั้งที่พิมพ์ เพื่อลดภาระ
         } else {
           previewBox.textContent = '';
           currentGeneratedMessage = '';
@@ -439,13 +436,8 @@
         } catch (e) {}
       }
 
-      // Event listeners
       generateBtn.addEventListener('click', generateMessage);
-
-      // ถ้าต้องการให้ Preview อัปเดตอัตโนมัติขณะพิมพ์ ให้เปิดบรรทัดนี้
       keyInput.addEventListener('input', livePreview);
-
-      // กด Enter เพื่อสร้างข้อความ
       keyInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -455,11 +447,9 @@
 
       clearBtn.addEventListener('click', clearAll);
       copyButton.addEventListener('click', copyToClipboard);
-
       document.addEventListener('submit', (e) => e.preventDefault());
 
       loadSavedData();
-
       console.log('🔒 PROXY KEY GENERATOR พร้อมใช้งาน (Offline & Secure)');
     })();
   </script>
