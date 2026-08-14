@@ -23,7 +23,6 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Glow effects เบาๆ */
     .glow-card {
       background: rgba(18, 24, 32, 0.9);
       backdrop-filter: blur(20px);
@@ -231,7 +230,6 @@
       margin: 0.5rem 0;
     }
 
-    /* ปรับแต่ง scroll */
     .preview-card::-webkit-scrollbar {
       width: 4px;
     }
@@ -277,16 +275,8 @@
     (function() {
       'use strict';
 
-      // 🔥 TEMPLATE ตายตัว (ห้ามเปลี่ยน server/port/url)
+      // 🔥 TEMPLATE ตายตัว (จะแทนที่ [KEY] ด้วยค่าที่กรอก)
       const TEMPLATE = `🔥 ข้อมูล PROXY ของคุณ 🔥
-
-🚀 PROXY HS ALTO
-🌐 Server: 165.73.244.14
-🔌 Port: 8881
-
-🚀 PROXY HS PEITO
-🌐 Server: 165.73.244.14
-🔌 Port: 3030
 
 ━━━━━━━━━━━━━━━━━━
 
@@ -296,14 +286,8 @@
 
 ━━━━━━━━━━━━━━━━━━
 
-📥 ดาวน์โหลด DNS
-🔗 https://www.mediafire.com/file/bbk2hqgc8na9vjx/Proxy_%F0%9F%94%8B.pem/file
-
 🤖 BOT OFFICIAL
-🔗 https://t.me/ffproxy_xbot
-
-🌐 เช็ค IP ของคุณ
-🔗 https://checkip.thaiware.com/
+🔗 http://ff.xarifi.com/login
 
 ━━━━━━━━━━━━━━━━━━
 
@@ -318,7 +302,6 @@
 ❤️ ขอบคุณที่อุดหนุนครับ
 หากพบปัญหาการใช้งาน สามารถติดต่อแอดมินได้เลยครับ 🙏`;
 
-      // DOM elements
       const keyInput = document.getElementById('keyInput');
       const generateBtn = document.getElementById('generateBtn');
       const clearBtn = document.getElementById('clearBtn');
@@ -326,16 +309,12 @@
       const copyButton = document.getElementById('copyButton');
       const toastMessage = document.getElementById('toastMessage');
 
-      // State
       let currentGeneratedMessage = '';
 
-      // ฟังก์ชันช่วย: แทนที่ [KEY] ใน template
       function replaceKeyInTemplate(keyValue) {
-        // ใช้ replaceAll เพื่อความปลอดภัย (รองรับทุกกรณี)
         return TEMPLATE.replaceAll('[KEY]', keyValue);
       }
 
-      // แสดงข้อความ toast ชั่วคราว
       function showToast(text, isGood = true) {
         toastMessage.textContent = text;
         toastMessage.style.color = isGood ? '#b0ffb0' : '#ffb74d';
@@ -346,18 +325,15 @@
         }, 2500);
       }
 
-      // อัปเดต preview และบันทึกสถานะลง localStorage
       function updatePreview(message) {
         previewBox.textContent = message;
         currentGeneratedMessage = message;
-        // บันทึก preview ล่าสุด และ key ที่ใช้ (เพื่อความสะดวก)
         try {
           localStorage.setItem('proxy_last_message', message);
           localStorage.setItem('proxy_last_key', keyInput.value.trim());
         } catch (e) {}
       }
 
-      // ล้าง preview และ reset
       function clearPreview() {
         previewBox.textContent = '';
         currentGeneratedMessage = '';
@@ -367,12 +343,11 @@
         } catch (e) {}
       }
 
-      // ฟังก์ชันสร้างข้อความ
+      // ฟังก์ชันสร้างข้อความ (ใส่ KEY ลงใน template)
       function generateMessage() {
         const rawKey = keyInput.value.trim();
         if (rawKey === '') {
           showToast('⚠️ กรุณาใส่ KEY ก่อน', false);
-          // สั่นเล็กน้อย (optional)
           keyInput.style.borderColor = '#ff5555';
           setTimeout(() => { keyInput.style.borderColor = ''; }, 400);
           return;
@@ -381,10 +356,22 @@
         const finalMessage = replaceKeyInTemplate(rawKey);
         updatePreview(finalMessage);
         showToast('✅ สร้างข้อความสำเร็จ', true);
-        // ล้าง toast หลังจากนั้นจะเหลือ preview
       }
 
-      // ฟังก์ชันคัดลอก
+      // เพิ่มฟังก์ชันเรียลไทม์: ถ้าพิมพ์แล้วให้อัปเดต preview ทันที (ตามต้องการ)
+      function livePreview() {
+        const rawKey = keyInput.value.trim();
+        if (rawKey !== '') {
+          const msg = replaceKeyInTemplate(rawKey);
+          previewBox.textContent = msg;
+          currentGeneratedMessage = msg;
+          // ไม่บันทึก localStorage ทุกครั้งที่พิมพ์ เพื่อลดภาระ
+        } else {
+          previewBox.textContent = '';
+          currentGeneratedMessage = '';
+        }
+      }
+
       async function copyToClipboard() {
         if (!currentGeneratedMessage || currentGeneratedMessage.trim() === '') {
           showToast('⚠️ ยังไม่มีข้อความให้คัดลอก กรุณาสร้างก่อน', false);
@@ -393,7 +380,6 @@
 
         try {
           await navigator.clipboard.writeText(currentGeneratedMessage);
-          // เปลี่ยนปุ่มชั่วคราว
           const originalText = copyButton.innerHTML;
           copyButton.innerHTML = '<span>✅</span> คัดลอกแล้ว';
           copyButton.disabled = true;
@@ -404,12 +390,34 @@
             copyButton.disabled = false;
           }, 2000);
         } catch (err) {
-          showToast('❌ ไม่สามารถคัดลอกได้ อาจต้องอนุญาต Clipboard', false);
-          console.error('Clipboard error:', err);
+          try {
+            const textArea = document.createElement('textarea');
+            textArea.value = currentGeneratedMessage;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            if (successful) {
+              const originalText = copyButton.innerHTML;
+              copyButton.innerHTML = '<span>✅</span> คัดลอกแล้ว';
+              copyButton.disabled = true;
+              showToast('📋 คัดลอกข้อความแล้ว', true);
+              setTimeout(() => {
+                copyButton.innerHTML = '<span>📋</span> คัดลอกข้อความ';
+                copyButton.disabled = false;
+              }, 2000);
+            } else {
+              showToast('❌ ไม่สามารถคัดลอกได้ กรุณาลองใหม่', false);
+            }
+          } catch (fallbackErr) {
+            showToast('❌ ไม่สามารถคัดลอกได้ อาจต้องอนุญาต Clipboard', false);
+          }
         }
       }
 
-      // ล้าง KEY และ preview
       function clearAll() {
         keyInput.value = '';
         clearPreview();
@@ -417,13 +425,11 @@
         keyInput.focus();
       }
 
-      // โหลดข้อมูลจาก localStorage เมื่อเปิดหน้า (เพื่อความสะดวก)
       function loadSavedData() {
         try {
           const savedMessage = localStorage.getItem('proxy_last_message');
           const savedKey = localStorage.getItem('proxy_last_key');
           if (savedMessage && savedMessage.trim() !== '') {
-            // มีข้อความเก่า
             previewBox.textContent = savedMessage;
             currentGeneratedMessage = savedMessage;
           }
@@ -436,7 +442,10 @@
       // Event listeners
       generateBtn.addEventListener('click', generateMessage);
 
-      // กด Enter ในช่อง key เพื่อสร้างข้อความ
+      // ถ้าต้องการให้ Preview อัปเดตอัตโนมัติขณะพิมพ์ ให้เปิดบรรทัดนี้
+      keyInput.addEventListener('input', livePreview);
+
+      // กด Enter เพื่อสร้างข้อความ
       keyInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -445,17 +454,12 @@
       });
 
       clearBtn.addEventListener('click', clearAll);
-
       copyButton.addEventListener('click', copyToClipboard);
 
-      // ป้องกันการ submit form (ถ้ามี)
       document.addEventListener('submit', (e) => e.preventDefault());
 
-      // เริ่มต้นโหลดข้อมูลเซฟ
       loadSavedData();
 
-      // ถ้าไม่มี preview ใดๆ เลย ให้แสดงว่า empty (css handle)
-      // เพิ่มความปลอดภัย: ไม่ส่ง key ออกนอกเครื่อง
       console.log('🔒 PROXY KEY GENERATOR พร้อมใช้งาน (Offline & Secure)');
     })();
   </script>
